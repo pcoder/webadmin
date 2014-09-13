@@ -115,9 +115,6 @@
 /* ------------------------------------------------------------------------- */
 
 
-/*
- * 
- */
 ini_set("session.cache_limiter","must-revalidate");
 session_start();
 $msg = "";
@@ -172,9 +169,9 @@ if(!isset($_SESSION['login'])){
       {
          try { 
 	         $connection = @mysqli_connect($vars['db']['host'],$vars['db']['user'],$vars['db']['password'],$vars['db']['dbname']);
-  		 $case_failure = 0;
+			 $case_failure = 0;
          } catch (Exception $exc) {
-            $msg = "ERROR 101. Please contact your site administrator.";
+             $msg = "ERROR 101. Please contact your site administrator.";
          } 
     
         $code=mysqli_real_escape_string($connection,$_GET['key']);
@@ -186,25 +183,25 @@ if(!isset($_SESSION['login'])){
 
         if(mysqli_num_rows($c) > 0)
         {
-	   $q1 = "SELECT uid FROM users WHERE activation='$code' and status='0'";
+	       $q1 = "SELECT uid FROM users WHERE activation='$code' and status='0'";
            if($debug)
               log_this(date(DATE_ATOM). ' query - ' . $q1);
            $count=mysqli_query($connection, $q1);
            if(mysqli_num_rows($count) == 1)
            {
-	      $q2 = "UPDATE users SET status='1' WHERE activation='$code'";
+	          $q2 = "UPDATE users SET status='1' WHERE activation='$code'";
               mysqli_query($connection, $q2);
-	      if($debug)
+	          if($debug)
                  log_this(date(DATE_ATOM). ' query - ' . $q2);
               $msg="Congratulations! Your account is successfully activated.";
-  	      $case_failure = 0;
+  	          $case_failure = 0;
               $clear_fields = true;
            }
            else
            {
               $msg ="Your account is already active, no need to activate again";
               $clear_fields = true;
-  	      $case_failure = 0;
+  	          $case_failure = 0;
            }
         } else {
             $msg ="Wrong activation code.";
@@ -309,11 +306,11 @@ if(!isset($_SESSION['login'])){
              // admin email 
              $body_admin='Hi, <br/> <br/> A new user - [[USER]] wants to activate his/her account. Please authorize by visiting the attached link. <br/> <br/> <a href="[[URL]]">[[URL]]</a>';
              $values = array(
-  		  'USER' => $email,
-		  'URL' => $base_url . '?activate=true&code=' . $activation,
-		);
+  		        'USER' => $email,
+		        'URL' => $base_url . '?activate=true&code=' . $activation,
+		     );
              $qu = "UPDATE users SET owner_key='[[OWNER_KEY]]' WHERE email='$email'"; 
-	     mail_admin('New user activation' , $body_admin, $values, $qu);
+	         mail_admin('New user activation' , $body_admin, $values, $qu);
              $msg= "Registration successful, please check your email.";
              $case_failure = 0;
              $clear_fields = true;
@@ -377,7 +374,7 @@ if(!isset($_SESSION['login'])){
                     $msg = "Your account is awaiting site owner's authorization.";
                     $clear_fields = false;
                  } else {
-          	    $_SESSION['login'] = $vals['uid'];
+          	        $_SESSION['login'] = $vals['uid'];
             	    $_SESSION['mail'] = $email;
                     header("refresh: 0;");
                  }    
@@ -386,13 +383,13 @@ if(!isset($_SESSION['login'])){
        }else{
             $msg = "The email you entered is invalid.";
             $clear_fields = false;
-	    $case_failure=0;
+	        $case_failure=0;
        }
      } else {
         if(isset($_POST))
           $msg = "Please fill email and password fields..";
         $clear_fields = false;
-	$case_failure=0;
+	    $case_failure=0;
      } 
   }
   if((isset($_GET['action']) && $_GET['action']=='view') ||  (isset($_GET['action']) && $_GET['action']=='login')){
@@ -420,7 +417,6 @@ function print_and_reload($msg, $seconds, $url){
           log_this(date(DATE_ATOM). ' print_and_reload - ' . $msg. ' && url = ' .$url. '\n');
           $seconds = $time_to_refresh;
        }
-
       
        echo $msg;
            
@@ -640,12 +636,6 @@ case 'askpermission':
    $file ="";
    $filesl = "";
    
-   /*if (get_magic_quotes_gpc()) {
-       $file = stripslashes($fileperm);
-   }
-   else {
-	   $file = $fileperm;	
-   }*/
    $file = $fileperm;	
    $file = relative2absolute($file);	
    
@@ -667,12 +657,9 @@ case 'askpermission':
       $c=mysqli_query($connection,"SELECT * FROM `file_access` WHERE uid='". $_SESSION['login'] . "' and path='" . $filesl . "' and access_type='$val'");
  
       if($c && mysqli_num_rows($c) >0){
-         $uquery = "UPDATE `file_access` SET owner_authorized='0' WHERE uid = '" . $_SESSION['login']. "' and path = '" .$filesl. "' and access_type='$val'";
-         if($debug)
-            log_this(date(DATE_ATOM). ' query - ' . $uquery);
-         //mysqli_query($connection,$uquery);
+            
       }else{
-         $iquery="INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`, `updated_path`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '$val', '0','')";
+         $iquery="INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '$val', '0')";
          if($debug)
            log_this(date(DATE_ATOM). ' query - askpermission - ' . $iquery);
          mysqli_query($connection,$iquery);
@@ -719,7 +706,7 @@ case 'presetvalues':
 	           $_GET['key']=$key;
            }else{
                $password = md5($p);
-	       $query = "UPDATE users SET password = '$password', activation='' WHERE activation = '$key'";
+	           $query = "UPDATE users SET password = '$password', activation='' WHERE activation = '$key'";
                $t = mysqli_query($connection,$query);
                $msg = "Your password has been successfully reset.";
                $messageOnly=true;
@@ -834,10 +821,6 @@ case 'read_access':
    
    $access_types = array('0');    
    
-//   if(is_dir($get_path)||ends_with($get_path,$delim)){
-//      $access_types = array('0', '1');    
-//   }
-   
    foreach($access_types as $at){
       $squery = "SELECT * FROM `file_access`, users  WHERE `file_access`.uid = users.uid and users.email='" . $get_email . "' and `file_access`.path='" .$get_path . "' and   `access_type` ='$at' and file_access.owner_key='$ownerk'";
       if($debug)
@@ -934,10 +917,6 @@ case 'write_access':
 
    $at="";
    $access_types = array('1');    
-//   if(is_dir($get_path) || ends_with($get_path,$delim)){
-//      $access_types = array('0', '1');    
-//   }
-
 
    foreach($access_types as $at){
        $squery = "SELECT * FROM `file_access`, users  WHERE `file_access`.uid = users.uid and users.email='" . $get_email . "' and `file_access`.path='" .$get_path . "' and access_type ='$at' and file_access.owner_key='" . $ownerk. "'";
@@ -1122,7 +1101,7 @@ case 'read':
 	    log_this(date(DATE_ATOM). ' query - ' . $uquery);
      mysqli_query($connection,$uquery);
   }else{
-     $iquery="INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`, `updated_path`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '0', '0','')";
+     $iquery="INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '0', '0')";
 	 if($debug)
 	    log_this(date(DATE_ATOM). ' query - ' . $iquery);
      mysqli_query($connection,$iquery);
@@ -1160,7 +1139,7 @@ case 'write':
     // update 
      mysqli_query($connection,"UPDATE `file_access` SET owner_authorized='0' WHERE uid = '" . $_SESSION['login']. "' and path = '" .$filesl. "' and access_type='1'");
   }else{
-     mysqli_query($connection,"INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`, `updated_path`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '1', '0','')");
+     mysqli_query($connection,"INSERT INTO `file_access` (`uid`, `path`, `access_type`, `owner_authorized`) VALUES('". $_SESSION['login'] . "','" .$filesl. "', '1', '0')");
   }
   mysqli_close($connection);
  
@@ -1558,7 +1537,6 @@ case 'copy':
       foreach ($files as $file) {
         $filename = substr($file, strlen($directory));
         $d = addslash($dest) . $filename;
-    //die($d);
         if (!@is_dir($file) && !@file_exists($d) && @copy($file, $d)) {
           $success[] = $file;
         } else {
@@ -1688,9 +1666,6 @@ case 'create_symlink':
   break;
 
 case 'edit':
-
-  //$query = "SELECT * from file_access WHERE uid=".$_SESSION['login'] . " and owner_authorized='1' and access_type='0' and path in " . get_all_paths($file) ;
-  //get_read_access("Please login to edit the file(s).",$files, $query, 'read_access_missing', 'read', $file);
 
   $query = "SELECT * from file_access WHERE uid=".$_SESSION['login'] . " and owner_authorized='1' and access_type='1' and path in " . get_all_paths($file) ;
   $_POST['rwaccess'] = "rwaccess";
@@ -3692,6 +3667,8 @@ function error_with_form ($phrase, $form="") {
 }
 
 /**
+
+* Shows one of the different divs in the login page depending on case_failure parameter.
 * case_failure 
 * 0 : login
 * 1 : register
@@ -3885,7 +3862,6 @@ function close_connection($con){
 function get_read_access($msg_show_register,$files, $query, $err_text, $verb, $cfile){
   global $vars,$debug;
   if(!isset($_SESSION) or (array_key_exists('login', $_SESSION) == false)){
-        #show_register("Please login to copy the files.","" , "", "", "","",true);
         show_register($msg_show_register,"" , "", "", "","",true);
   }
 
@@ -3906,15 +3882,15 @@ function get_read_access($msg_show_register,$files, $query, $err_text, $verb, $c
             if(strpos($query, "owner_authorized='1'") === FALSE) {
 		
             } else{
-		$qx = str_replace("owner_authorized='1'", "owner_authorized='0'", $query);
-		if($debug)
-  	           log_this(date(DATE_ATOM). ' qx - ' . $qx . ' ** ');
-	        $rx = mysqli_query($con, $qx);
-        	if(mysqli_num_rows($rx)<1){
+		         $qx = str_replace("owner_authorized='1'", "owner_authorized='0'", $query);
+		         if($debug)
+  	                log_this(date(DATE_ATOM). ' qx - ' . $qx . ' ** ');
+	             $rx = mysqli_query($con, $qx);
+        	     if(mysqli_num_rows($rx)<1){
 			
-		}else{
-		  $owner_authorized_awaiting = true; 
-		}
+		         }else{
+		              $owner_authorized_awaiting = true; 
+		         }
             }
 
             break;    
@@ -3941,18 +3917,11 @@ function get_read_access($msg_show_register,$files, $query, $err_text, $verb, $c
      if (isset($_POST) && array_key_exists('rwaccess', $_POST))
      {
         $isdir = "<input type='hidden' id='rwaccess' name='rwaccess' value='true' />";
-     }
-
-     /*if (isset($_POST) && array_key_exists('create_type', $_POST) && ($_POST['create_type'] == 'file' )) 
-     {
-        $isdir = "<input type='hidden' id='rwaccess' name='rwaccess' value='true' />";
-     }*/
- 
+     } 
  
      if($debug){
         log_this(date(DATE_ATOM). ' isdir - ' . $isdir . ' ** ' .  ' isfile - ' . $isfile);
      }
-
 
      $access_text = "Ask permission?";
      $disabled = "";
