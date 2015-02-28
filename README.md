@@ -4,7 +4,12 @@ webadmin
 forked from https://gist.github.com/nic-o/1219610
 
 
-This is a simple PHP script to manage files on a web server. There are a lot of changes and functionalities added with regards to the original webadmin script. These are listed below:
+This is a simple PHP script to manage files on a web server. 
+
+Requirements: PHP, MySQL, Windows/Linux 
+
+
+There are a lot of changes and functionalities added with regards to the original webadmin script. These are listed below:
 
 1. Admin user: The user has complete access to the files on the system. He can grant access to read write and execute permissions to users on per file, per user basis.
 2. User management: Users can register to the site. They need approval from the site admin to access the contents of the site.
